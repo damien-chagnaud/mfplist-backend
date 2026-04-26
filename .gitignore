@@ -1,0 +1,21 @@
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+# Project configuration with secrets
+conf/app_conf.json
+conf/db_conf.json
+conf/*.local.json
+
+# Logs and runtime artifacts
+*.log
+logs/
+tmp/
+cache/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
