@@ -1,5 +1,6 @@
 <?php
 require_once '../lib/config.php';
+require_once '../lib/logger.php';
 /**
  * This file is responsible for bootstrapping the application.
  * It loads the configuration, and initializes the application.

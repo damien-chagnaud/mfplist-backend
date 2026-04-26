@@ -203,7 +203,7 @@
             <h1>Welcome to the MFPList Backend API</h1>
             <p class="subtitle">
                 This service powers authentication, synchronization, and data management for clients,
-                contacts, devices, parts, and device history records. It is designed for lightweight,
+                contacts, devices, machines, parts, and device history records. It is designed for lightweight,
                 token-based integrations from web and mobile apps.
             </p>
         </section>
@@ -219,6 +219,7 @@
                     <div class="resource"><strong>Clients</strong><span>/clients | /clients/synctime</span></div>
                     <div class="resource"><strong>Contacts</strong><span>/contacts | /contacts/synctime</span></div>
                     <div class="resource"><strong>Devices</strong><span>/devices | /devices/synctime</span></div>
+                    <div class="resource"><strong>Machines</strong><span>/machines (GET, POST, PUT)</span></div>
                     <div class="resource"><strong>Device History</strong><span>/device_hists | /device_hists/synctime</span></div>
                     <div class="resource"><strong>Parts</strong><span>/parts | /parts/synctime</span></div>
                     <div class="resource"><strong>Authentication</strong><span>/login (GET, POST)</span></div>

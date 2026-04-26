@@ -1,19 +1,19 @@
 <?php
 require_once '../lib/dao.php';
-require_once '../lib/devices.php';
+require_once '../lib/logger.php';
+require_once '../dao/machine.dao.php';
 
-/// This file is responsible for handling device data requests.
-/// It checks user permissions, retrieves device data from the database, and returns it in JSON format
+/// This file is responsible for handling machine data requests.
+/// It checks user permissions, retrieves machine data from the database, and returns it in JSON format.
 if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 0) {
-    http_content_type('application/json');
+    header('Content-Type: application/json; charset=UTF-8');
 
-    $result = [];
     try {
         $dao = DAO::getInstance();
-        $results = $dao->read(new DEVICES(), false, true);
+        $results = $dao->read(new MACHINE(), false, true);
     } catch (Exception $e) {
         http_response_code(500);
-        error_log('get_devices failed: ' . $e->getMessage());
+        Logger::safeError('get_machines failed.', array('exception' => $e->getMessage()));
         echo json_encode(['error' => 'Internal server error']);
         exit;
     }
@@ -23,11 +23,13 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 0) {
         echo json_encode(['error' => 'Database query failed']);
         exit;
     }
+
     if (count($results) === 0) {
         http_response_code(404);
-        echo json_encode(['error' => 'No devices found']);
+        echo json_encode(['error' => 'No machines found']);
         exit;
     }
+
     echo json_encode($results);
 } else {
     http_response_code(403);

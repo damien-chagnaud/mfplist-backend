@@ -8,6 +8,7 @@
  */
 
 include 'dbaccess.php';
+require_once __DIR__ . '/logger.php';
 
 Class Credentials{
     private $conn;
@@ -43,6 +44,7 @@ Class Credentials{
         try {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
+            Logger::safeError('checkCredentials fetch failed.', array('exception' => $e->getMessage()));
             return false;
         }
 

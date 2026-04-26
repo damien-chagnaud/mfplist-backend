@@ -4,13 +4,12 @@
 !.env.example
 
 # Project configuration with secrets
-conf/app_conf.json
-conf/db_conf.json
-conf/*.local.json
+conf/*.php
 
 # Logs and runtime artifacts
 *.log
 logs/
+var/logs/
 tmp/
 cache/
 

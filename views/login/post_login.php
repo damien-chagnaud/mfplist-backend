@@ -1,5 +1,6 @@
 <?php
 require_once '../lib/credentials.php';
+require_once '../lib/logger.php';
 
 $contenType = filter_input(INPUT_SERVER , 'CONTENT_TYPE',FILTER_SANITIZE_STRING);
 $verify = false;
@@ -62,6 +63,7 @@ try{
         }
     }
 } catch (Exception $e) {
+    Logger::safeError('post_login payload parsing failed.', array('exception' => $e->getMessage()));
     $response_code = 400;
 }
 

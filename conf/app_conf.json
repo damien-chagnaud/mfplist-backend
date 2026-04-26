@@ -2,10 +2,6 @@
     "app_name": "SxmSoundTech",
     "version": "1.0.0",
     "site_url": "/appdata",
-    "db_conf": {
-        "host": "localhost",
-        "username": "MFPLIST_DB_USER",
-        "password": "MFPLIST_DB_PASSWORD",
-        "database": "sxmsoundtech"
-    }
+    "debug": true
+     
 }
