@@ -29,7 +29,8 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 1) {
         }
     } catch (Exception $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        error_log('put_contacts update failed: ' . $e->getMessage());
+        echo json_encode(['error' => 'Internal server error']);
         exit;
     }
 

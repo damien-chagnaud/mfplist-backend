@@ -4,8 +4,8 @@
     "site_url": "/appdata",
     "db_conf": {
         "host": "localhost",
-        "username": "sxmsoundtech",
-        "password": "St0590293865!",
+        "username": "MFPLIST_DB_USER",
+        "password": "MFPLIST_DB_PASSWORD",
         "database": "sxmsoundtech"
     }
 }

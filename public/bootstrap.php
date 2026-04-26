@@ -8,6 +8,16 @@ require_once '../lib/config.php';
 //load configuration
 $appConfig = loadAppConfig();
 
+function envOrDefault($name, $default = null)
+{
+    $value = getenv($name);
+    if ($value === false || $value === '') {
+        return $default;
+    }
+
+    return $value;
+}
+
 if ($appConfig === false) {
     $response_code = 500;
     $response_text = 'Internal Server Error';
@@ -36,14 +46,20 @@ if ($appConfig === false) {
         throw new Exception("Database configuration is not set in the configuration file.");
     } else {
         $dbConfig = $appConfig['db_conf'];
-        if (!isset($dbConfig['host'], $dbConfig['username'], $dbConfig['password'], $dbConfig['database'])) {
+        $dbHost = envOrDefault('MFPLIST_DB_HOST', $dbConfig['host'] ?? null);
+        $dbName = envOrDefault('MFPLIST_DB_NAME', $dbConfig['database'] ?? null);
+        $dbUser = envOrDefault('MFPLIST_DB_USER', $dbConfig['username'] ?? null);
+        $dbPass = envOrDefault('MFPLIST_DB_PASSWORD', $dbConfig['password'] ?? null);
+
+        if (empty($dbHost) || empty($dbName) || empty($dbUser) || empty($dbPass)) {
             throw new Exception("Incomplete database configuration.");
         }
+
         configuration::$dbConfig = new DbConfig(
-            $dbConfig['host'],
-            $dbConfig['database'],
-            $dbConfig['username'],
-            $dbConfig['password']
+            $dbHost,
+            $dbName,
+            $dbUser,
+            $dbPass
         );
     }
    

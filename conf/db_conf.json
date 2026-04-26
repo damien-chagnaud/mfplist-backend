@@ -1,8 +1,8 @@
  {
     "host": "localhost",
     "db_name": "sxmsoundtech",
-    "username": "sxmsoundtech",
-    "password": "St0590293865!"
+    "username": "MFPLIST_DB_USER",
+    "password": "MFPLIST_DB_PASSWORD"
 }
 
 

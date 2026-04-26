@@ -32,14 +32,11 @@ class Dao {
     public function count($obj){
         try{
             $tablename = $obj::getTableName();
-            $query = "SELECT COUNT(*) FROM $tablename";
-			
-            $resQuery = self::query($query);
+            $query = "SELECT COUNT(*) FROM " . self::quoteIdentifier($tablename);
 			$stmt = self::$dbHandle->prepare($query);
 			$stmt->execute();
 			
-            $tot = self::countRow($stmt);
-            return($tot);
+            return (int) $stmt->fetchColumn();
         }catch(Exception $e) {
             return(false);
         }
@@ -48,20 +45,30 @@ class Dao {
     public function create($obj){
         
         try{
-            $varTab = array();
-            $valTab = array();
             $objValue = self::objToValue($obj);
             $tablename = $obj::getTableName();
 
-            foreach($objValue as $key => $value){
-                $varTab[] = $key;
-                $valTab[] = "'".$value."'";
+            if (count($objValue) === 0) {
+                return false;
             }
 
-            $query = "INSERT INTO ".self::dbFilterIn($tablename)." (".implode(",", $varTab).") VALUES ( ".implode(",", $valTab).");";
-			
+            $columns = array_keys($objValue);
+            $quotedColumns = array_map(function ($column) {
+                return self::quoteIdentifier($column);
+            }, $columns);
+
+            $placeholders = array();
+            $params = array();
+            foreach ($columns as $index => $column) {
+                $placeholder = ':val' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $objValue[$column];
+            }
+
+            $query = "INSERT INTO " . self::quoteIdentifier($tablename) . " (" . implode(',', $quotedColumns) . ") VALUES (" . implode(',', $placeholders) . ")";
+
 			$stmt = self::$dbHandle->prepare($query);
-			$stmt->execute();
+			$stmt->execute($params);
             
             return ($stmt!=FALSE)? true:false;
   
@@ -73,33 +80,42 @@ class Dao {
     
     public function read($objDB, $limit = false,$returnTab = false, $orderBy=false, $whereClause=false){
         $query = '';
-        $i = 0;
         $tabelemnt = array();
+        $params = array();
         
         try{
             $tablename = $objDB::getTableName();
             $objValue = self::objToValue($objDB);
-            $query .= "SELECT * FROM $tablename ";
+            $query .= "SELECT * FROM " . self::quoteIdentifier($tablename) . " ";
 
             if(count($objValue)>0){
                 $query .= 'WHERE ';
+                $whereParts = array();
+                $index = 0;
                 foreach($objValue as $name => $value){
-                    $sep = ($i>0)?' AND ':' ';
-                    $query .= $sep.self::dbFilterIn($name)." LIKE '".self::dbFilterIn($value)."'";
-                    $i++;
+                    $placeholder = ':where' . $index;
+                    $whereParts[] = self::quoteIdentifier($name) . ' = ' . $placeholder;
+                    $params[$placeholder] = $value;
+                    $index++;
                 }
-            }elseif(is_string($whereClause)){/*************************** VERY BAD SYSTEM *********************/
-				 $query .= 'WHERE '.$whereClause;
+
+                $query .= ' ' . implode(' AND ', $whereParts) . ' ';
+
+
+            }elseif(is_string($whereClause) && trim($whereClause) !== ''){
+				 return false;
 			}
 
             if(is_string($orderBy)){
-                $query .= ' ORDER BY '.self::dbFilterIn($orderBy).' DESC ';
+                $query .= ' ORDER BY '.self::quoteIdentifier($orderBy).' DESC ';
             }
 
             if(is_numeric($limit)){
-                $query .= ' LIMIT ' . self::dbFilterIn($limit);
+                $query .= ' LIMIT ' . (int) $limit;
             }elseif(is_array($limit)){
-                $query .= ' LIMIT ' . self::dbFilterIn($limit[0]).', '.self::dbFilterIn($limit[1]);
+                $offset = (int) $limit[0];
+                $size = (int) $limit[1];
+                $query .= ' LIMIT ' . $offset . ', ' . $size;
             }
 
             $query .= ';';
@@ -107,7 +123,7 @@ class Dao {
             $result = false;
 
             $stmt = self::$dbHandle->prepare($query);
-            $result = $stmt->execute();
+            $result = $stmt->execute($params);
             if(!$result){
                 return false;
             }
@@ -116,6 +132,7 @@ class Dao {
 				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){$tabelemnt[] = $row;}
 				return($tabelemnt);
             }else{
+                $className = get_class($objDB);
 				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){$tabelemnt[] = self::valueToObj($row,$className);}
 				return($tabelemnt);
             }
@@ -131,25 +148,34 @@ class Dao {
             $primaryTab = self::getPrimary($tablename);
             if(count($primaryTab)>0){//SINGLE PRIMARY
                 $prim = $primaryTab[0];
-                if(method_exists($obj, 'get'.$prim)){
-                    $primVal = call_user_func(array($obj, 'get'.$prim));
+                if(method_exists($obj, 'get'.ucfirst($prim))){
+					$primVal = call_user_func(array($obj, 'get'.ucfirst($prim)));
 					
                     if($primVal<>''){
                         $objValue = self::objToValue($obj);
 
-                        $query = "UPDATE ".self::dbFilterIn($tablename)." SET ";
-                        $i=0;
+                        $query = "UPDATE " . self::quoteIdentifier($tablename) . " SET ";
+                        $updateParts = array();
+                        $params = array();
+                        $i = 0;
                         foreach($objValue as $key => $value){ 
-							if($value!=null ){
-							   $comma = ($i>0)? ',': '';
-							   $query .= $comma.self::dbFilterIn($key)." = '".self::dbFilterIn($value)."'";  
+							if($value !== null){
+							   $placeholder = ':set' . $i;
+							   $updateParts[] = self::quoteIdentifier($key) . " = " . $placeholder;
+							   $params[$placeholder] = $value;
 							   $i++;
 							}
                         }
+
+                        if (count($updateParts) === 0) {
+                            return false;
+                        }
                         
-                        $query .= " WHERE ".self::dbFilterIn($prim)." = '".self::dbFilterIn($primVal)."';";
-						//print($query);
-                        $res = self::query($query);
+                        $query .= implode(', ', $updateParts);
+                        $query .= " WHERE " . self::quoteIdentifier($prim) . " = :primaryValue;";
+                        $params[':primaryValue'] = $primVal;
+						$stmt = self::$dbHandle->prepare($query);
+                        $res = $stmt->execute($params);
                         return ($res!=FALSE)? true:false;
                     }
                 }
@@ -170,19 +196,29 @@ class Dao {
                 if($primVal<>''){
                     $objValue = self::objToValue($obj);
 
-                    $query = "UPDATE ".self::dbFilterIn($tablename)." SET ";
+                    $query = "UPDATE " . self::quoteIdentifier($tablename) . " SET ";
+                    $updateParts = array();
+                    $params = array();
                     $i=0;
                     foreach($objValue as $key => $value){ 
-                        if($value!=null ){
-                            $comma = ($i>0)? ',': '';
-                            $query .= $comma.self::dbFilterIn($key)." = '".self::dbFilterIn($value)."'";  
+                        if($value !== null ){
+                            $placeholder = ':set' . $i;
+                            $updateParts[] = self::quoteIdentifier($key) . " = " . $placeholder;
+                            $params[$placeholder] = $value;
                             $i++;
                         }
                     }
+
+                    if (count($updateParts) === 0) {
+                        return false;
+                    }
+
+                    $query .= implode(', ', $updateParts);
                     
-                    $query .= " WHERE ".self::dbFilterIn($primaryTab)." = '".self::dbFilterIn($primVal)."';";
-                    //print($query);
-                    $res = self::query($query);
+                    $query .= " WHERE " . self::quoteIdentifier($primaryTab) . " = :primaryValue;";
+                    $params[':primaryValue'] = $primVal;
+                    $stmt = self::$dbHandle->prepare($query);
+                    $res = $stmt->execute($params);
                     return ($res!=FALSE)? true:false;
                 }
             }
@@ -201,11 +237,10 @@ class Dao {
                 if(method_exists($obj, 'get'.ucfirst($prim))){
                     $primVal = call_user_func(array($obj, 'get'.ucfirst($prim)));
                     if($primVal<>''){
-                       
-                        $query = "DELETE FROM ".self::dbFilterIn($tablename)." WHERE ".self::dbFilterIn($prim)." = '".self::dbFilterIn($primVal)."' ;";
 
-						
-                        $res = self::query($query);
+                        $query = "DELETE FROM " . self::quoteIdentifier($tablename) . " WHERE " . self::quoteIdentifier($prim) . " = :primaryValue ;";
+						$stmt = self::$dbHandle->prepare($query);
+						$res = $stmt->execute(array(':primaryValue' => $primVal));
 						
                         return ($res!=FALSE)? true:false;
                     }
@@ -253,15 +288,40 @@ class Dao {
 	private function countRow($retQuery){
 		return(count(self::fetch_array($retQuery)));
 	}
+
+    private function quoteIdentifier($identifier) {
+        if (!is_string($identifier) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $identifier)) {
+            throw new InvalidArgumentException('Invalid SQL identifier.');
+        }
+
+        return '`' . $identifier . '`';
+    }
+
+    private function getPrimary($tableName) {
+        $query = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = :db AND TABLE_NAME = :table AND COLUMN_KEY = :columnKey';
+        $stmt = self::$dbHandle->prepare($query);
+        $stmt->execute(array(
+            ':db' => configuration::$dbConfig->getDbName(),
+            ':table' => $tableName,
+            ':columnKey' => 'PRI'
+        ));
+
+        $primaryKeys = array();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $primaryKeys[] = $row['COLUMN_NAME'];
+        }
+
+        return $primaryKeys;
+    }
 	
     /*-------------------- PROTECTED --------------------*/
 
     protected function dbFilterIn($value){//TO => DB
-        $valueCln = '';
-        $valueCln = addslashes($value);
-        
+        if (is_string($value)) {
+            return trim($value);
+        }
 
-        return($valueCln);
+        return $value;
     }
 
     protected function dbFilterOut($value){//TO => PHP
@@ -306,8 +366,8 @@ class Dao {
         $getters = self::getGetters($obj);
         foreach($getters as $method){
             if(method_exists($obj, $method) && $method != 'getTableName'){
-                $value = self::dbFilterOut(call_user_func(array($obj, $method)));
-                if(strlen($value)>0){
+                $value = call_user_func(array($obj, $method));
+                if($value !== null && $value !== ''){
                     $valueTab[strtoupper(substr($method,3))] = $value;
                 } 
             }

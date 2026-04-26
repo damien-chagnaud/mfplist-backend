@@ -12,6 +12,19 @@ include 'dbaccess.php';
 Class Credentials{
     private $conn;
 
+    private function tokenDigest($token) {
+        return hash('sha256', (string) $token);
+    }
+
+    private function upgradeLegacyPasswordHash($userId, $plainPassword) {
+        $newHash = password_hash($plainPassword, PASSWORD_ARGON2ID);
+        $query = 'UPDATE cred_users SET password = :password WHERE uid = :uid';
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':password', $newHash);
+        $stmt->bindParam(':uid', $userId);
+        $stmt->execute();
+    }
+
     public function __construct() {
         $dbConfig = configuration::$dbConfig;
         if ($dbConfig === null) {
@@ -22,13 +35,10 @@ Class Credentials{
     }
 
     public function checkCredentials($email, $password) {
-        $query = 'SELECT * FROM cred_users WHERE email = :email AND password = :password';
+        $query = 'SELECT uid, password FROM cred_users WHERE email = :email';
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
-        $hashedPassword = hash('sha512', $password);
-        $stmt->bindParam(':password', $hashedPassword);
         $stmt->execute();
-        $result;
 
         try {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -36,18 +46,32 @@ Class Credentials{
             return false;
         }
 
-        if ($stmt->rowCount() > 0) {
-            return $result['uid'];
-        } else {
+        if (!$result) {
             return false;
         }
+
+        $storedPassword = (string) $result['password'];
+
+        if (password_verify($password, $storedPassword)) {
+            return $result['uid'];
+        }
+
+        // Backward-compatible fallback for legacy SHA-512 hashes.
+        $legacyPasswordHash = hash('sha512', $password);
+        if (hash_equals($storedPassword, $legacyPasswordHash)) {
+            $this->upgradeLegacyPasswordHash($result['uid'], $password);
+            return $result['uid'];
+        }
+
+        return false;
     }
 
     public function generateToken($uuid) {
-        $token = bin2hex(random_bytes(16));
+        $token = bin2hex(random_bytes(32));
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'UPDATE cred_users SET token = :token, token_created_at = NOW() WHERE uid = :uid';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->bindParam(':uid', $uuid);
         $stmt->execute();
 
@@ -56,9 +80,10 @@ Class Credentials{
 
 
     public function checkToken($token) {
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'SELECT * FROM cred_users WHERE token = :token';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
@@ -69,25 +94,28 @@ Class Credentials{
     }
 
     public function deleteToken($token) {
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'UPDATE cred_users SET token = NULL WHERE token = :token';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->execute();
     }
 
     public function getUser($token) {
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'SELECT * FROM cred_users WHERE token = :token';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
     public function isTokenExpired($token) {
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'SELECT token_created_at FROM cred_users WHERE token = :token';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->execute();
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -103,9 +131,10 @@ Class Credentials{
     }
 
     public function getUserLevel($token) {
+        $tokenDigest = $this->tokenDigest($token);
         $query = 'SELECT level FROM cred_users WHERE token = :token';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':token', $token);
+        $stmt->bindParam(':token', $tokenDigest);
         $stmt->execute();
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
