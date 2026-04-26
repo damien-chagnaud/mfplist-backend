@@ -1,2 +1,1 @@
-# mfplist-backend
-PHP Backend of MFPList project
+# PHP Backend for MFPList project

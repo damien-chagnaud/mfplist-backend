@@ -1,0 +1,11 @@
+{
+    "app_name": "SxmSoundTech",
+    "version": "1.0.0",
+    "site_url": "/appdata",
+    "db_conf": {
+        "host": "localhost",
+        "username": "sxmsoundtech",
+        "password": "St0590293865!",
+        "database": "sxmsoundtech"
+    }
+}
