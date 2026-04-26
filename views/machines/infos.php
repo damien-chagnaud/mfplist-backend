@@ -8,11 +8,11 @@ function e($value)
 
 $machineSample = [
 	'id' => 23,
-	'uuid' => 'mfp-0f2f9a7a-b99c-4d36-a7cc-3f6d1d1c2012',
+	'uuid' => '4a600223-a470-4c15-adec-9d0108551f78',
 	'sn' => 'SN-2026-00918',
 	'name' => 'MFP-Floor-2-North',
 	'brand' => 'Ricoh',
-	'type' => 'A3 Color MFP',
+	'type' => 'col',
 	'installdate' => '2025-03-12',
 	'geopos' => '50.6326,5.5797',
 	'clientname' => 'Acme Industries',
@@ -293,21 +293,22 @@ unset($machinePayload['id']);
 					<thead>
 						<tr>
 							<th>Field</th>
+							<th>Type</th>
 							<th>Description</th>
 							<th>Example</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr><td>id</td><td>Internal numeric identifier.</td><td>23</td></tr>
-						<tr><td>uuid</td><td>Unique machine identifier.</td><td>mfp-0f2f9a7a-b99c...</td></tr>
-						<tr><td>sn</td><td>Serial number.</td><td>SN-2026-00918</td></tr>
-						<tr><td>name</td><td>Machine display name.</td><td>MFP-Floor-2-North</td></tr>
-						<tr><td>brand</td><td>Manufacturer brand.</td><td>Ricoh</td></tr>
-						<tr><td>type</td><td>Machine category/model type.</td><td>A3 Color MFP</td></tr>
-						<tr><td>installdate</td><td>Install date string.</td><td>2025-03-12</td></tr>
-						<tr><td>geopos</td><td>GPS or textual location.</td><td>50.6326,5.5797</td></tr>
-						<tr><td>clientname</td><td>Main customer name.</td><td>Acme Industries</td></tr>
-						<tr><td>clientsubname</td><td>Customer sub-site/branch.</td><td>Headquarters</td></tr>
+						<tr><td>id</td><td>int</td><td>Internal numeric identifier.</td><td>23</td></tr>
+						<tr><td>uuid</td><td>char(36)</td><td>Unique machine identifier.</td><td>mfp-0f2f9a7a-b99c...</td></tr>
+						<tr><td>sn</td><td>char(100)</td><td>Serial number.</td><td>SN-2026-00918</td></tr>
+						<tr><td>name</td><td>char(150)</td><td>Machine display name.</td><td>MFP-Floor-2-North</td></tr>
+						<tr><td>brand</td><td>char(100)</td><td>Manufacturer brand.</td><td>Ricoh</td></tr>
+						<tr><td>type</td><td>enum('bk', 'col')</td><td>Machine type.</td><td>col</td></tr>
+						<tr><td>installdate</td><td>date</td><td>Install date string.</td><td>2025-03-12</td></tr>
+						<tr><td>geopos</td><td>char(100)</td><td>GPS or textual location.</td><td>50.6326,5.5797</td></tr>
+						<tr><td>clientname</td><td>char(150)</td><td>Main customer name.</td><td>Acme Industries</td></tr>
+						<tr><td>clientsubname</td><td>char(150)</td><td>Customer sub-site/branch.</td><td>Headquarters</td></tr>
 					</tbody>
 				</table>
 			</article>

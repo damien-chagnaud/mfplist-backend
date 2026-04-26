@@ -8,8 +8,7 @@
 
 # Logs and runtime artifacts
 *.log
-logs/
-var/logs/
+logs/*
 tmp/
 cache/
 

@@ -6,6 +6,10 @@
  * This class provides methods for database operations such as create, read, update, and delete.
  * It uses a singleton pattern to ensure only one instance of the Dao class exists.
  */
+
+require_once 'dbaccess.php';
+require_once 'logger.php';
+
 class Dao {
 	/*------------------ SNGl MECHA ------------------*/
 	private static $_instance = null;
@@ -22,7 +26,6 @@ class Dao {
 	
 	private function __construct() { 
         // Initialize the database connection
-	    $dbConfig = configuration::$dbConfig;
         $dbAccess = new DbSQL($dbConfig);
 		self::$dbHandle = $dbAccess->open();
 	}

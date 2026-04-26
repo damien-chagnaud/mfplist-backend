@@ -56,15 +56,12 @@ class Logger
     public static function createLogFile()
     {
         $time = date(static::$options['dateFormat']);
-        static::$log_directory = dirname(__DIR__) . '/var/logs';
+        static::$log_directory = dirname(__DIR__) . '/logs';
         static::$log_file = static::$log_directory . "/log-{$time}.txt";
-
 
         //Check if directory /logs exists
         if (!file_exists(static::$log_directory)) {
-            if (!mkdir(static::$log_directory, 0750, true) && !is_dir(static::$log_directory)) {
-                throw new Exception('ERROR: Unable to create log directory.', 1);
-            }
+            throw new Exception('ERROR: Unable to loacte log directory.', 1);
         }
 
         //Create log file if it doesn't exist.

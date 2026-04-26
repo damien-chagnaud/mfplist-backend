@@ -1,5 +1,12 @@
 <?php
-require_once '../lib/dao.php';
+
+//Load DAO classes based on the configured database system
+if($_SERVER['DATABASE_SYSTEM']=='mariadb'){
+    require_once '../lib/dao.mariadb.php';
+}else if($_SERVER['DATABASE_SYSTEM']=='sqlite'){
+    require_once '../lib/dao.sqlite.php';
+}
+
 require_once '../lib/logger.php';
 require_once '../dao/machine.dao.php';
 
@@ -13,6 +20,7 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 1) {
     $machine = new MACHINE();
 
     try {
+        //load the machine data from the JSON input
         $machine->fromJson($data);
     } catch (Exception $e) {
         http_response_code(400);

@@ -2,7 +2,7 @@
 
 class MACHINE {
 	//PROPERTIES:
-	public static $tablename = "machine";
+	public static $tablename = "machines";
 	private static $primaryKey = "id";
 	private $id;
 	private $uuid;

@@ -1,5 +1,12 @@
 <?php
-require_once '../lib/dao.php';
+
+//Load DAO classes based on the configured database system
+if($_SERVER['DATABASE_SYSTEM']=='mariadb'){
+    require_once '../lib/dao.mariadb.php';
+}else if($_SERVER['DATABASE_SYSTEM']=='sqlite'){
+    require_once '../lib/dao.sqlite.php';
+}
+
 require_once '../lib/logger.php';
 require_once '../dao/machine.dao.php';
 

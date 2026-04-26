@@ -8,7 +8,7 @@
  */
 
 include 'dbaccess.php';
-require_once __DIR__ . '/logger.php';
+require_once 'logger.php';
 
 Class Credentials{
     private $conn;
@@ -18,7 +18,8 @@ Class Credentials{
     }
 
     private function upgradeLegacyPasswordHash($userId, $plainPassword) {
-        $newHash = password_hash($plainPassword, PASSWORD_ARGON2ID);
+        $newHash = password_hash($plainPassword, PASSWORD_DEFAULT);
+        print("hash: " . $newHash . " length: " . strlen($newHash));
         $query = 'UPDATE cred_users SET password = :password WHERE uid = :uid';
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':password', $newHash);
@@ -27,11 +28,7 @@ Class Credentials{
     }
 
     public function __construct() {
-        $dbConfig = configuration::$dbConfig;
-        if ($dbConfig === null) {
-            throw new Exception("Database configuration is not set.");
-        }
-        $dbAccess = new DbSQL($dbConfig);
+        $dbAccess = new DbAccess();
         $this->conn = $dbAccess->open();
     }
 

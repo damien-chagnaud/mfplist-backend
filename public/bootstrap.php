@@ -1,5 +1,4 @@
 <?php
-require_once '../lib/config.php';
 
 /**
  * This file is responsible for bootstrapping the application.
@@ -8,16 +7,6 @@ require_once '../lib/config.php';
 
 //load configuration
 $appConfig = loadAppConfig();
-
-function envOrDefault($name, $default = null)
-{
-    $value = getenv($name);
-    if ($value === false || $value === '') {
-        return $default;
-    }
-
-    return $value;
-}
 
 if ($appConfig === false) {
     $response_code = 500;
@@ -30,39 +19,32 @@ if ($appConfig === false) {
     if (!isset($appConfig['app_name']) || empty($appConfig['app_name'])) {
         throw new Exception("Application name is not set in the configuration file.");
     } else {
-        $appName = $appConfig['app_name'];
-        $_SERVER['APP_NAME'] = $appName;
+        putenv('APP_NAME=' . $appConfig['app_name']);
     }
     
     // Set the site URL
     if (!isset($appConfig['site_url']) || empty($appConfig['site_url'])) {
         throw new Exception("Site URL is not set in the configuration file.");
     }else{
-        $siteURL = $appConfig['site_url'];
-        $_SERVER['SITE_URL'] = $siteURL;
+        putenv('SITE_URL=' . $appConfig['site_url']);
     }
 
     // Set DB configuration
-    if (!isset($appConfig['db_conf']) || empty($appConfig['db_conf'])) {
-        throw new Exception("Database configuration is not set in the configuration file.");
-    } else {
-
-        $dbConfig = $appConfig['db_conf'];
-        $dbHost = envOrDefault('MFPLIST_DB_HOST', $dbConfig['host'] ?? null);
-        $dbName = envOrDefault('MFPLIST_DB_NAME', $dbConfig['db_name'] ?? null);
-        $dbUser = envOrDefault('MFPLIST_DB_USER', $dbConfig['username'] ?? null);
-        $dbPass = envOrDefault('MFPLIST_DB_PASSWORD', $dbConfig['password'] ?? null);
-
-        if (empty($dbHost) || empty($dbName) || empty($dbUser) || empty($dbPass)) {
-            throw new Exception("Incomplete database configuration.");
-        }
-
-        configuration::$dbConfig = new DbConfig(
-            $dbHost,
-            $dbName,
-            $dbUser,
-            $dbPass
-        );
+    switch ($appConfig['database_system']) {
+        case 'mariadb':
+            putenv('DATABASE_SYSTEM=mariadb');
+            putenv('MFPLIST_DB_HOST=' . ($appConfig['db_conf']['host'] ?? ''));
+            putenv('MFPLIST_DB_NAME=' . ($appConfig['db_conf']['db_name'] ?? ''));
+            putenv('MFPLIST_DB_USER=' . ($appConfig['db_conf']['username'] ?? ''));
+            putenv('MFPLIST_DB_PASSWORD=' . ($appConfig['db_conf']['password'] ?? ''));
+            break;
+        case 'sqlite':
+            putenv('DATABASE_SYSTEM=sqlite');
+            putenv('MFPLIST_DB_FILE=' . ($appConfig['db_conf']['file'] ?? ''));
+            // SQLite configuration can be handled here if needed
+            break;
+        default:
+            throw new Exception("Unsupported database system: " . $appConfig['database_system']);
     }
    
 }
@@ -88,7 +70,14 @@ function loadAppConfig()
         throw new Exception("Configuration file not found: $file");
     }
 
-     // Load database configuration from PHP file
+    // Set the database system
+    if (!isset($config['database_system']) || empty($config['database_system'])) {
+        throw new Exception("Database system is not set in the configuration file.");
+    }else {
+        $_SERVER['DATABASE_SYSTEM'] = $config['database_system'];
+    }
+
+    // Load database configuration from PHP file
     $dbConfFile = '../conf/db_conf.php';
     if (file_exists($dbConfFile)) {
         $dbConf = include $dbConfFile;
@@ -100,7 +89,6 @@ function loadAppConfig()
     }
         
     return $config;
-
 }
 
 /**
@@ -115,4 +103,14 @@ function filter_string_polyfill(string $string): string
 {
     $str = preg_replace('/\x00|<[^>]*>?/', '', $string);
     return str_replace(["'", '"'], ['&#39;', '&#34;'], $str);
+}
+
+function envOrDefault($name, $default = null)
+{
+    $value = getenv($name);
+    if ($value === false || $value === '') {
+        return $default;
+    }
+
+    return $value;
 }
