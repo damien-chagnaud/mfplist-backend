@@ -163,6 +163,13 @@
             border-color: #c7d9e1;
         }
 
+        .btn-inline {
+            color: var(--accent-2);
+            padding: 5px 7px;
+            background: #f4f8fa;
+            border-color: #c7d9e1;
+        }
+
         .btn:hover {
             transform: translateY(-1px);
         }
@@ -216,13 +223,14 @@
                     GET operations and write operations for data sync workflows.
                 </p>
                 <div class="resources">
-                    <div class="resource"><strong>Clients</strong><span>/clients | /clients/synctime</span></div>
-                    <div class="resource"><strong>Contacts</strong><span>/contacts | /contacts/synctime</span></div>
-                    <div class="resource"><strong>Devices</strong><span>/devices | /devices/synctime</span></div>
-                    <div class="resource"><strong>Machines</strong><span>/machines (GET, POST, PUT)</span></div>
-                    <div class="resource"><strong>Device History</strong><span>/device_hists | /device_hists/synctime</span></div>
-                    <div class="resource"><strong>Parts</strong><span>/parts | /parts/synctime</span></div>
-                    <div class="resource"><strong>Authentication</strong><span>/login (GET, POST)</span></div>
+                    <div class="resource">
+                        <strong>Machines </strong>
+                            <span>/machines (GET, POST, PUT)</span>
+                            <div class="actions"><a class="btn btn-inline" href="machines/infos">/infos</a></div>
+                    </div>
+                    <div class="resource">
+                        <strong>Authentication</strong><span>/login (GET, POST)</span>
+                    </div>
                 </div>
             </article>
 

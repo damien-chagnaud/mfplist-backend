@@ -6,25 +6,27 @@ require_once '../lib/router.php';
 require_once 'bootstrap.php';
 require_once 'head.php';
 
-get($_SERVER['SITE_URL'], '../views/pages/index.php');
+get('/', '../views/pages/index.php');
 
 
 // Route for the login page
 // ##################################################
 // GET route for login
-get($_SERVER['SITE_URL'].'/login', '../views/login/get_login.php');
+get('/login', '../views/login/get_login.php');
 // POST route for login
-post($_SERVER['SITE_URL'].'/login', '../views/login/post_login.php');
+post('/login', '../views/login/post_login.php');
 
 
 /// Route for the machines page
 // ##################################################
 // GET route for machines
-get($_SERVER['SITE_URL'].'/machines', '../views/machines/get_machines.php');
+get('/machines', '../views/machines/get_machines.php');
 // POST route for machines
-post($_SERVER['SITE_URL'].'/machines', '../views/machines/post_machines.php');
+post('/machines', '../views/machines/post_machines.php');
 // PUT route for machines
-put($_SERVER['SITE_URL'].'/machines', '../views/machines/put_machines.php');
+put('/machines', '../views/machines/put_machines.php');
+// GET route for machine service info page
+get('/machines/infos', '../views/machines/infos.php');
 
 
 // For GET or POST

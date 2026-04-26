@@ -1,6 +1,6 @@
 <?php
 require_once '../lib/config.php';
-require_once '../lib/logger.php';
+
 /**
  * This file is responsible for bootstrapping the application.
  * It loads the configuration, and initializes the application.
@@ -46,9 +46,10 @@ if ($appConfig === false) {
     if (!isset($appConfig['db_conf']) || empty($appConfig['db_conf'])) {
         throw new Exception("Database configuration is not set in the configuration file.");
     } else {
+
         $dbConfig = $appConfig['db_conf'];
         $dbHost = envOrDefault('MFPLIST_DB_HOST', $dbConfig['host'] ?? null);
-        $dbName = envOrDefault('MFPLIST_DB_NAME', $dbConfig['database'] ?? null);
+        $dbName = envOrDefault('MFPLIST_DB_NAME', $dbConfig['db_name'] ?? null);
         $dbUser = envOrDefault('MFPLIST_DB_USER', $dbConfig['username'] ?? null);
         $dbPass = envOrDefault('MFPLIST_DB_PASSWORD', $dbConfig['password'] ?? null);
 
@@ -74,6 +75,8 @@ if ($appConfig === false) {
  */
 function loadAppConfig()
 {
+    $config = [];
+    
     $file = '../conf/app_conf.json';
     if (file_exists($file)) {
         $string = file_get_contents($file);
@@ -81,10 +84,23 @@ function loadAppConfig()
         if ($config === null) {
             throw new Exception("Error parsing configuration file: $file");
         }
-        return $config;
     } else {
         throw new Exception("Configuration file not found: $file");
     }
+
+     // Load database configuration from PHP file
+    $dbConfFile = '../conf/db_conf.php';
+    if (file_exists($dbConfFile)) {
+        $dbConf = include $dbConfFile;
+        if (is_array($dbConf)) {
+            $config['db_conf'] = $dbConf;
+        }
+    }else {
+        throw new Exception("Database configuration file not found: $dbConfFile");
+    }
+        
+    return $config;
+
 }
 
 /**
