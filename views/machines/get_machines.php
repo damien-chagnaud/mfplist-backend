@@ -17,7 +17,7 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 0) {
 
     try {
         $dao = DAO::getInstance();
-        $results = $dao->read(new MACHINE(), false, true);
+        $results = $dao->read(new MachineDao(), false, true);
     } catch (Exception $e) {
         http_response_code(500);
         Logger::safeError('get_machines failed.', array('exception' => $e->getMessage()));

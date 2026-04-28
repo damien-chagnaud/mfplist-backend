@@ -46,6 +46,13 @@ if ($appConfig === false) {
         default:
             throw new Exception("Unsupported database system: " . $appConfig['database_system']);
     }
+
+    //Set debug mode
+    if (isset($appConfig['debug'])) {
+        putenv('DEBUG_MODE=' . ($appConfig['debug'] ? 'true' : 'false'));
+    } else {
+        putenv('DEBUG_MODE=false');
+    }
    
 }
 

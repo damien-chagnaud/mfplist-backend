@@ -1,6 +1,6 @@
 <?php
 
-class MACHINE {
+class MachineDao{
 	//PROPERTIES:
 	public static $tablename = "machines";
 	private static $primaryKey = "id";

@@ -6,6 +6,11 @@ require_once '../lib/router.php';
 require_once 'bootstrap.php';
 require_once 'head.php';
 
+// ROUTES:
+
+// Route for the home page
+// ##################################################
+// GET route for home page
 get('/', '../views/pages/index.php');
 
 
@@ -17,6 +22,7 @@ get('/login', '../views/login/get_login.php');
 post('/login', '../views/login/post_login.php');
 
 
+
 /// Route for the machines page
 // ##################################################
 // GET route for machines
@@ -25,8 +31,11 @@ get('/machines', '../views/machines/get_machines.php');
 post('/machines', '../views/machines/post_machines.php');
 // PUT route for machines
 put('/machines', '../views/machines/put_machines.php');
-// GET route for machine service info page
-get('/machines/infos', '../views/machines/infos.php');
+//if debug mode is enabled, add the infos endpoint for machines
+/*if (getenv('DEBUG_MODE') === 'true') {
+    print("DEBUG MODE ENABLED");*/
+    get('/machines/infos', '../views/machines/get_machines_infos.php');
+//}
 
 
 // For GET or POST

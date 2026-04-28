@@ -1,4 +1,5 @@
 <?php
+
 $siteUrl = isset($_SERVER['SITE_URL']) ? rtrim($_SERVER['SITE_URL'], '/') : '';
 
 function e($value)
@@ -90,6 +91,7 @@ unset($machinePayload['id']);
 			padding: 6px 12px;
 			margin-bottom: 12px;
 		}
+
 
 		h1 {
 			margin: 0;
@@ -253,6 +255,7 @@ unset($machinePayload['id']);
 </head>
 <body>
 	<main class="shell">
+
 		<section class="hero">
 			<span class="kicker">Machine Service</span>
 			<h1>Machine API Information</h1>

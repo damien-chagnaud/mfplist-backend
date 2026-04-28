@@ -17,7 +17,7 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 1) {
 
     $data = json_decode(file_get_contents('php://input'), true);
     $dao = DAO::getInstance();
-    $machine = new MACHINE();
+    $machine = new MachineDao();
 
     try {
         //load the machine data from the JSON input

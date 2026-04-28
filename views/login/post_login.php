@@ -85,7 +85,7 @@ if($verify) {
     if($uid!==false){
         $token = $cred->generateToken($uid);
         clearRateLimit($rateKey);
-        echo json_encode(['message' => 'successful', 'token' => $token, 'user_id' => $uid]);
+        echo json_encode(['message' => 'successful', 'token' => $token, 'user_id' => $uid, 'user_level' => $cred->getUserLevel($token)]);
         $response_code = 200;
     } else {
         addRateLimitAttempt($rateKey, $windowSeconds);

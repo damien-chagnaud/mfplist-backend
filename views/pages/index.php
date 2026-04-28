@@ -1,3 +1,6 @@
+<?php
+$debugMode = getenv('DEBUG_MODE') === 'true';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,6 +68,34 @@
             border-radius: 999px;
             padding: 6px 12px;
             margin-bottom: 14px;
+        }
+
+        .stripe {
+            background-image: linear-gradient(
+                45deg, 
+                #eefa00 25%, 
+                #000000 25%, 
+                #000000 50%, 
+                #eefa00 50%, 
+                #eefa00 75%, 
+                #000000 75%, 
+                #000000 100%
+            );
+            background-size: 32px 32px;
+        }
+
+        .debug-bar {
+            width: 100%;
+            padding: 15px 16px;
+            margin-bottom: 0;
+            text-align: center;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ff0000;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.35);
         }
 
         h1 {
@@ -205,12 +236,15 @@
 </head>
 <body>
     <main class="shell">
+        <?php if ($debugMode): ?>
+            <div class="debug-bar stripe"><span style="background-color: #ff0000; color: #fff; padding: 2px 6px; border-radius: 4px;">Debug Mode active</span></div>
+        <?php endif; ?>
+        
         <section class="hero">
             <span class="kicker">MFPList Service</span>
             <h1>Welcome to the MFPList Backend API</h1>
             <p class="subtitle">
-                This service powers authentication, synchronization, and data management for clients,
-                contacts, devices, machines, parts, and device history records. It is designed for lightweight,
+                This service powers authentication and data management for machines. It is designed for lightweight,
                 token-based integrations from web and mobile apps.
             </p>
         </section>
@@ -226,7 +260,11 @@
                     <div class="resource">
                         <strong>Machines </strong>
                             <span>/machines (GET, POST, PUT)</span>
-                            <div class="actions"><a class="btn btn-inline" href="machines/infos">/infos</a></div>
+                            <?php
+                            //if debug mode is enabled, show the infos endpoint for machines
+                            if (getenv('DEBUG_MODE') === 'true'): ?>
+                                <div class="actions"><a class="btn btn-inline" href="machines/infos">/infos</a></div>
+                            <?php endif; ?>
                     </div>
                     <div class="resource">
                         <strong>Authentication</strong><span>/login (GET, POST)</span>
@@ -240,13 +278,10 @@
                     Authenticate using <strong>POST /login</strong> to receive a bearer token, then include it
                     in the Authorization header for secured operations.
                 </p>
-                <div class="actions">
-                    <a class="btn btn-primary" href="login">Open Login Endpoint</a>
-                    <a class="btn btn-secondary" href="infos">Service Info</a>
-                </div>
-                <p class="footnote">Base URL: configured by SITE_URL in your environment.</p>
             </article>
-        </section>
+        </section> <?php if ($debugMode): ?>
+            <div class="debug-bar stripe" style="height: 50px;"> </div>
+        <?php endif; ?>
     </main>
 </body>
 </html>

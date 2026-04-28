@@ -4,6 +4,26 @@
 require_once '../lib/credentials.php';
 require_once '../lib/headers.php';
 
+function isPublicRoute() {
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    if (!is_string($requestPath) || $requestPath === '') {
+        $requestPath = '/';
+    }
+
+    $requestPath = rtrim($requestPath, '/');
+    if ($requestPath === '') {
+        $requestPath = '/';
+    }
+
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    $publicRoutes = array(
+        'GET' => array('/', '/login'),
+        'POST' => array('/login')
+    );
+
+    return in_array($requestPath, $publicRoutes[$method] ?? array(), true);
+}
+
 
 // Get the Bearer token
 $token = Headers::getBearerToken();
@@ -36,8 +56,13 @@ if ($token) {
     }
 } else {
     $_SERVER['SECURED'] = false;
-    $response_code = 200;
-    $quit = false;
+    if (isPublicRoute() || getenv('DEBUG_MODE') === 'true') {
+        $response_code = 200;
+        $quit = false;
+    } else {
+        $response_code = 401;
+        $response_text = 'Unauthorized';
+    }
 }
 
 //("Content-Type: application/json; charset=UTF-8", true, $response_code);
