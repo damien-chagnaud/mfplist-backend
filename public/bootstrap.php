@@ -5,8 +5,14 @@
  * It loads the configuration, and initializes the application.
  */
 
+require_once '../lib/headers.php';
+
 //load configuration
 $appConfig = loadAppConfig();
+
+// Apply CORS headers
+$allowedOrigins = $appConfig['allowed_origins'] ?? [];
+Headers::setCorsHeaders($allowedOrigins);
 
 if ($appConfig === false) {
     $response_code = 500;

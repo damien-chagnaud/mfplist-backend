@@ -2,6 +2,10 @@
     "app_name": "SxmSoundTech",
     "version": "1.0.0",
     "site_url": "/appdata",
-    "debug": true
-     
+    "database_system": "mariadb",
+    "debug": true,
+    "allowed_origins": [
+        "http://localhost",
+        "http://localhost:9059"
+    ]
 }
