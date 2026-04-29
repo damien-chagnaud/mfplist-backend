@@ -88,6 +88,8 @@ if ($token) {
 }
 
 if ($response_code !== 200 || $quit) {
+    header("Cache-Control: no-cache");
+    header('Content-Type: application/json; charset=UTF-8');
     echo json_encode(['error' => $response_text]);
     exit();
 }

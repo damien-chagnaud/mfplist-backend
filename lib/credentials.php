@@ -76,8 +76,7 @@ Class Credentials{
         return $token;
     }
 
-
-    public function checkToken($token) {
+    public function validToken($token) {
         $tokenDigest = $this->tokenDigest($token);
         $query = 'SELECT * FROM cred_users WHERE token = :token';
         $stmt = $this->conn->prepare($query);
@@ -139,14 +138,13 @@ Class Credentials{
         return $result ? $result['level'] : null;
     }
 
-    public function validToken($token) {// 0: token invalid, 1: valid token, 2: token expired, 3: insufficient level
-        if ($this->checkToken($token)) {
+    public function verifyToken($user_id, $token) {// 0: token invalid, 1: valid token, 2: token expired, 3: insufficient level
+        if ($this->checkToken($user_id, $token)) {
             if ($this->isTokenExpired($token)) {
                 $this->deleteToken($token);
-                return 0;
+                return 2;
             } else {
-                $userLevel = $this->getUserLevel($token);
-                return $userLevel;
+                return 1;
             }
         } else {
             return 0;
@@ -155,6 +153,22 @@ Class Credentials{
 
     public function close() {
         $this->conn = null;
+    }
+
+    //private functions
+    private function checkToken($user_id, $token) {
+        $tokenDigest = $this->tokenDigest($token);
+        $query = 'SELECT * FROM cred_users WHERE uid = :uid AND token = :token';
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':uid', $user_id);
+        $stmt->bindParam(':token', $tokenDigest);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 ?>

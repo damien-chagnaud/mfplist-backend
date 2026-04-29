@@ -20,6 +20,9 @@ get('/', '../views/pages/index.php');
 get('/login', '../views/login/get_login.php');
 // POST route for login
 post('/login', '../views/login/post_login.php');
+// POST route for token verification
+post('/login/verify', '../views/login/post_verify.php');
+
 
 
 
