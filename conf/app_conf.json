@@ -6,7 +6,6 @@
     "debug": true,
     "allowed_origins": [
         "http://localhost",
-        "http://localhost:9059",
-		"http://localhost:33963"
+        "http://localhost:9059"
     ]
 }

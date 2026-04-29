@@ -5,6 +5,10 @@ require_once '../lib/credentials.php';
 require_once '../lib/headers.php';
 
 function isHttpsRequest() {
+    if(getenv('DEBUG_MODE') === 'true') {
+        return true;
+    }
+    
     $https = $_SERVER['HTTPS'] ?? '';
     if (is_string($https) && strtolower($https) !== 'off' && $https !== '') {
         return true;
