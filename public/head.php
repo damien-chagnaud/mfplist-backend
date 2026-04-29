@@ -62,9 +62,9 @@ if ($token) {
             $response_code = 200;
             $quit = false;
             $_SERVER['SECURED'] = true;
-            $_SERVER['USER_LEVEL'] = $result;
             $_SERVER['USER_TOKEN'] = $token;
             $user = $cred->getUser($token); 
+            $_SERVER['USER_LEVEL'] = $user['level'];
             $_SERVER['USER_NAME'] = $user['username'];
             $_SERVER['USER_ID'] = $user['uid'];
         } else {

@@ -1,7 +1,7 @@
 {
     "app_name": "SxmSoundTech",
     "version": "1.0.0",
-    "site_url": "/appdata",
+    "site_url": "/mfplist-data",
     "database_system": "mariadb",
     "debug": true,
     "allowed_origins": [

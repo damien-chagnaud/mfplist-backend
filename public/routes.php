@@ -35,10 +35,9 @@ post('/machines', '../views/machines/post_machines.php');
 // PUT route for machines
 put('/machines', '../views/machines/put_machines.php');
 //if debug mode is enabled, add the infos endpoint for machines
-/*if (getenv('DEBUG_MODE') === 'true') {
-    print("DEBUG MODE ENABLED");*/
+if (getenv('DEBUG_MODE') === 'true') {
     get('/machines/infos', '../views/machines/get_machines_infos.php');
-//}
+}
 
 
 // For GET or POST
