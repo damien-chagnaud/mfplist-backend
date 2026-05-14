@@ -43,7 +43,6 @@ function isPublicRoute() {
     return in_array($requestPath, $publicRoutes[$method] ?? array(), true);
 }
 
-
 // Get the Bearer token
 $token = Headers::getBearerToken();
 
