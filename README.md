@@ -19,18 +19,18 @@ Database credentials are **not** stored in `app_conf.json`. They are read from `
 
 Database credentials are read from `conf/db_conf.php` at runtime and exposed as environment variables:
 
-- `MFPLIST_DB_HOST`
-- `MFPLIST_DB_NAME`
-- `MFPLIST_DB_USER`
-- `MFPLIST_DB_PASSWORD`
+- `COPILOC_DB_HOST`
+- `COPILOC_DB_NAME`
+- `COPILOC_DB_USER`
+- `COPILOC_DB_PASSWORD`
 
 Example (PowerShell, for overriding at the OS level):
 
 ```powershell
-$env:MFPLIST_DB_HOST = "localhost"
-$env:MFPLIST_DB_NAME = "mfplist"
-$env:MFPLIST_DB_USER = "your_db_user"
-$env:MFPLIST_DB_PASSWORD = "your_db_password"
+$env:COPILOC_DB_HOST = "localhost"
+$env:COPILOC_DB_NAME = "mfplist"
+$env:COPILOC_DB_USER = "your_db_user"
+$env:COPILOC_DB_PASSWORD = "your_db_password"
 ```
 
 ## CORS configuration

@@ -39,10 +39,10 @@ if ($appConfig === false) {
     switch ($appConfig['database_system']) {
         case 'mariadb':
             putenv('DATABASE_SYSTEM=mariadb');
-            putenv('MFPLIST_DB_HOST=' . ($appConfig['db_conf']['host'] ?? ''));
-            putenv('MFPLIST_DB_NAME=' . ($appConfig['db_conf']['db_name'] ?? ''));
-            putenv('MFPLIST_DB_USER=' . ($appConfig['db_conf']['username'] ?? ''));
-            putenv('MFPLIST_DB_PASSWORD=' . ($appConfig['db_conf']['password'] ?? ''));
+            putenv('COPILOC_DB_HOST=' . ($appConfig['db_conf']['host'] ?? ''));
+            putenv('COPILOC_DB_NAME=' . ($appConfig['db_conf']['db_name'] ?? ''));
+            putenv('COPILOC_DB_USER=' . ($appConfig['db_conf']['username'] ?? ''));
+            putenv('COPILOC_DB_PASSWORD=' . ($appConfig['db_conf']['password'] ?? ''));
             break;
         case 'sqlite':
             putenv('DATABASE_SYSTEM=sqlite');

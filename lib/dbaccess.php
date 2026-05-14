@@ -37,10 +37,10 @@ class DbAccess {
     }
 
     private function connectMariaDB() {
-        $host = envOrDefault('MFPLIST_DB_HOST');
-        $dbName = envOrDefault('MFPLIST_DB_NAME');
-        $username = envOrDefault('MFPLIST_DB_USER');
-        $password = envOrDefault('MFPLIST_DB_PASSWORD');
+        $host = envOrDefault('COPILOC_DB_HOST');
+        $dbName = envOrDefault('COPILOC_DB_NAME');
+        $username = envOrDefault('COPILOC_DB_USER');
+        $password = envOrDefault('COPILOC_DB_PASSWORD');
 
         if (empty($host) || empty($dbName) || empty($username) || $password === null) {
             throw new InvalidArgumentException('Incomplete database credentials for MariaDB.');
