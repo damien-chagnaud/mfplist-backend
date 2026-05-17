@@ -4,7 +4,9 @@
 !.env.example
 
 # Project configuration with secrets
-conf/*
+conf/app_conf.php
+conf/clients.json
+conf/db_conf.php
 
 # Logs and runtime artifacts
 *.log
