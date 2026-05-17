@@ -35,20 +35,25 @@ $env:COPILOC_DB_PASSWORD = "your_db_password"
 
 ## CORS configuration
 
-Cross-Origin Resource Sharing is configured via the `allowed_origins` array in `conf/app_conf.json`:
+CORS is enforced via client application validation. Each request must include an `X-APP-ID` header containing a client app UUID. The system:
 
-```json
-"allowed_origins": [
-    "http://localhost",
-    "http://localhost:9059"
-]
+1. **Validates client app UUID**: Looks up the UUID in the database via `ClientAppsManager`.
+2. **Checks allowed origin**: Returns the `allowed_origin` configured for that client app (or `null` for forbidden requests → `403` response).
+3. **Sets CORS headers**:
+   - `Access-Control-Allow-Origin`: Matches the client app's configured origin
+   - `Access-Control-Allow-Methods`: GET, POST, PUT, DELETE, OPTIONS
+   - `Access-Control-Allow-Headers`: Authorization, Content-Type, Accept
+   - `Access-Control-Max-Age`: 86400 seconds
+   - `Vary: Origin`: For correct CDN caching
+4. **Handles preflight**: `OPTIONS` requests return `204 No Content` immediately.
+
+**Required request header:**
+```
+X-APP-ID: <client-app-uuid>
 ```
 
-- Only listed origins receive an `Access-Control-Allow-Origin` header.
-- Preflight `OPTIONS` requests are handled automatically (responds `204` and exits).
-- A `Vary: Origin` header is sent so proxies/CDNs cache responses correctly.
-- Add `"*"` to the list to allow all origins (not recommended for production).
-- Implemented in `lib/headers.php` (`Headers::setCorsHeaders()`) and applied in `public/bootstrap.php` before any other output.
+- Implemented in `public/head.php` (`setCorsHeaders()`) and called before token validation.
+- No client app found → `403 Forbidden` with error response.
 
 ## Security hardening included
 
