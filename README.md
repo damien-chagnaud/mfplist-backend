@@ -1,19 +1,54 @@
 # PHP Backend for MFPList project
 
-## Configuration (`conf/app_conf.json`)
+## Configuration files
 
-Application settings are centralized in `conf/app_conf.json`:
+Configuration is managed via PHP files in the `conf/` folder. Each file reads environment variables with local fallback defaults for development.
 
-| Key | Description |
-|---|---|
-| `app_name` | Application name exposed as `APP_NAME` env var |
-| `version` | Application version |
-| `site_url` | Base URL prefix for routes (`SITE_URL`) |
-| `database_system` | `mariadb` or `sqlite` |
-| `debug` | Enables debug mode (`DEBUG_MODE`) |
-| `allowed_origins` | List of allowed CORS origins (see below) |
+### `conf/app_conf.php`
 
-Database credentials are **not** stored in `app_conf.json`. They are read from `conf/db_conf.php` at runtime and injected as environment variables by `public/bootstrap.php`.
+Application settings with environment variable support:
+
+| Setting | Env Variable | Default | Purpose |
+|---------|--------------|---------|---------|
+| `app_name` | `COPILOC_APP_NAME` | `Copiloc Data API` | Application name |
+| `version` | `COPILOC_APP_VERSION` | `1.0.0` | Version string |
+| `site_url` | `COPILOC_SITE_URL` | (empty) | Base URL prefix for routes |
+| `database_system` | `COPILOC_DATABASE_SYSTEM` | `mariadb` | `mariadb` or `sqlite` |
+| `debug` | `COPILOC_DEBUG` | `false` | Debug mode toggle |
+
+### `conf/db_conf.php`
+
+Database credentials with environment variable support:
+
+| Setting | Env Variable | Default |
+|---------|--------------|---------|
+| `host` | `COPILOC_DB_HOST` | (empty) |
+| `db_name` | `COPILOC_DB_NAME` | (empty) |
+| `username` | `COPILOC_DB_USER` | (empty) |
+| `password` | `COPILOC_DB_PASSWORD` | (empty) |
+
+**Security note**: For production, always set these via OS environment variables rather than editing the PHP fallbacks.
+
+### `conf/clients.json`
+
+Client application registry for CORS enforcement. Each entry defines:
+
+```json
+{
+    "uuid": "client-app-uuid",
+    "name": "Client App Name",
+    "allowed_origin": "https://client.example.com",
+    "active": true,
+    "status": "active",
+    "access_dao": ["machines", "modules"]
+}
+```
+
+- `uuid`: Unique identifier sent in `X-APP-ID` header by clients
+- `allowed_origin`: CORS origin allowed for this client
+- `active`: Enable/disable the client app
+- `status`: Client status descriptor
+- `access_dao`: DAOs (data access objects) this client can access
 
 ## Security setup
 
@@ -63,70 +98,3 @@ X-APP-ID: <client-app-uuid>
 - Login endpoint has rate limiting: max **8 attempts per 15 minutes** per email+IP combination (returns HTTP `429`).
 - Internal exception details are logged server-side via `lib/logger.php` and never returned to API clients.
 - Database connection errors are caught and abstracted before being surfaced to callers.
-
-## Users API
-
-All users endpoints require a valid authenticated token and admin access level (`USER_LEVEL > 1`).
-
-### List users
-
-- Method: `GET`
-- Route: `/users`
-- Success: `200`
-- Notes: returns all users and excludes sensitive fields (`password`, `token`).
-
-### Get user by UUID
-
-- Method: `GET`
-- Route: `/users/{uuid}`
-- Success: `200`
-- Not found: `404`
-- Notes: returns one user and excludes sensitive fields (`password`, `token`).
-
-### Create user
-
-- Method: `POST`
-- Route: `/users`
-- Success: `201`
-- Required JSON fields: `password` and any other required DB fields (`uuid`, `uid`, `username`, `email`, `token_created_at`)
-- Notes: password is hashed server-side using `password_hash` before insert.
-
-Example payload:
-
-```json
-{
-    "uuid": "d2fd9e55-5c28-4d13-9d4d-2c9ad2326d5c",
-    "uid": "U1001",
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "StrongPassword123!",
-    "token_created_at": "2026-05-17 10:30:00",
-    "level": 2
-}
-```
-
-### Update user
-
-- Method: `PUT`
-- Route: `/users`
-- Success: `200`
-- Required JSON field: `uuid` (target user)
-- Notes: if `password` is present, it is hashed server-side before update.
-
-Example payload:
-
-```json
-{
-    "uuid": "d2fd9e55-5c28-4d13-9d4d-2c9ad2326d5c",
-    "username": "admin-renamed",
-    "email": "admin.renamed@example.com",
-    "level": 2
-}
-```
-
-### Delete user by UUID
-
-- Method: `DELETE`
-- Route: `/users/{uuid}`
-- Success: `200`
-- Not found: `404`
