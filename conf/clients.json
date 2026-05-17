@@ -1,13 +1,3 @@
 [
-    {"uuid": "66293e11-3e20-48d0-b9d5-1c942e61853d", "allowed_origin": "", "active": true, "name": "copiloc", "status": "", "access_dao": ["machinesdao"]},
-    {"uuid": "d9c8e1b4-5a7c-4f0e-9b3a-2f1e5c6d8a9f", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "e68b5322-046e-497e-a3b6-1d12e2df7727", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "581e18da-f111-4cec-bf16-b3b9e03eacde", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "02bed6cc-4ad0-40e7-963c-b9fd93113fee", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "7aa2e0d4-b1e0-4d14-ba43-dee4cb947745", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "531ebe69-8990-47d2-a3fa-aa1480f6503c", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "06b3323e-c3b4-4a00-b9aa-2c2016fb335d", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "ae28adbb-733b-44a0-9873-bea5fd0a05bc", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "6787d0b3-53df-42bf-8e4e-1a5c983cbc10", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []},
-    {"uuid": "c251531c-74c5-4783-af12-bb3e592452a6", "allowed_origin": "", "active": true, "name": "", "status": "", "access_dao": []}
+    {"uuid": "", "allowed_origin": "", "active": false, "name": "", "status": "", "access_dao": [""]}
 ]
