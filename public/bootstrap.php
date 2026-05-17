@@ -2,17 +2,13 @@
 
 /**
  * This file is responsible for bootstrapping the application.
- * It loads the configuration, and initializes the application.
+ * It loads the configuration and initializes the application.
  */
-
+require_once '../lib/logger.php';
 require_once '../lib/headers.php';
 
-//load configuration
+//load configuration and set environment variables for the application and the database based on the configuration files and request headers.
 $appConfig = loadAppConfig();
-
-// Apply CORS headers
-$allowedOrigins = $appConfig['allowed_origins'] ?? [];
-Headers::setCorsHeaders($allowedOrigins);
 
 if ($appConfig === false) {
     $response_code = 500;
@@ -23,6 +19,7 @@ if ($appConfig === false) {
 }else {
     // Set the application name
     if (!isset($appConfig['app_name']) || empty($appConfig['app_name'])) {
+        Logger::safeError("Application name is not set in the configuration file.");
         throw new Exception("Application name is not set in the configuration file.");
     } else {
         putenv('APP_NAME=' . $appConfig['app_name']);
@@ -30,6 +27,7 @@ if ($appConfig === false) {
     
     // Set the site URL
     if (!isset($appConfig['site_url']) || empty($appConfig['site_url'])) {
+        Logger::safeError("Site URL is not set in the configuration file.");
         throw new Exception("Site URL is not set in the configuration file.");
     }else{
         putenv('SITE_URL=' . $appConfig['site_url']);
@@ -50,6 +48,7 @@ if ($appConfig === false) {
             // SQLite configuration can be handled here if needed
             break;
         default:
+            Logger::safeError("Unsupported database system: " . $appConfig['database_system'], array('DATABASE_SYSTEM' => $appConfig['database_system']));
             throw new Exception("Unsupported database system: " . $appConfig['database_system']);
     }
 
@@ -62,29 +61,34 @@ if ($appConfig === false) {
    
 }
 
+
+//FUNCTIONS:
+
+
 /**
- * Load the application configuration from a JSON file.
+ * Load the application configuration and database configuration from the respective PHP files.
  *
  * @return array The application configuration settings.
- * @throws Exception If the configuration file does not exist or cannot be parsed.
  */
 function loadAppConfig()
 {
     $config = [];
     
-    $file = '../conf/app_conf.json';
-    if (file_exists($file)) {
-        $string = file_get_contents($file);
-        $config = json_decode($string, true);
-        if ($config === null) {
-            throw new Exception("Error parsing configuration file: $file");
+    // Load application configuration from PHP file:
+    $appConfigFile = '../conf/app_conf.php';
+    if (file_exists($appConfigFile)) {
+        $appConfig = include $appConfigFile;
+        if (is_array($appConfig)) {
+            $config = array_merge($config, $appConfig);
         }
     } else {
-        throw new Exception("Configuration file not found: $file");
+        Logger::safeError("Application configuration file not found: $appConfigFile");
+        throw new Exception("Application configuration file not found: $appConfigFile");
     }
-
+    
     // Set the database system
     if (!isset($config['database_system']) || empty($config['database_system'])) {
+        Logger::safeError("Database system is not set in the configuration file.");
         throw new Exception("Database system is not set in the configuration file.");
     }else {
         $_SERVER['DATABASE_SYSTEM'] = $config['database_system'];
@@ -98,6 +102,7 @@ function loadAppConfig()
             $config['db_conf'] = $dbConf;
         }
     }else {
+        Logger::safeError("Database configuration file not found: $dbConfFile");
         throw new Exception("Database configuration file not found: $dbConfFile");
     }
         

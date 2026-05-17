@@ -40,6 +40,20 @@ if (getenv('DEBUG_MODE') === 'true') {
 }
 
 
+/// Route for the users page
+// ##################################################
+// GET route for users
+get('/users', '../views/users/get_users.php');
+// GET route for a single user by uuid
+get('/users/$uuid', '../views/users/get_users_by_uuid.php');
+// POST route for users
+post('/users', '../views/users/post_users.php');
+// PUT route for users
+put('/users', '../views/users/put_users.php');
+// DELETE route for users by uuid
+delete('/users/$uuid', '../views/users/delete_users.php');
+
+
 // For GET or POST
 // The 404.php which is inside the views folder will be called
 // The 404.php has access to $_GET and $_POST

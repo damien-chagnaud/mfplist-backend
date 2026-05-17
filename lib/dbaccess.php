@@ -21,11 +21,12 @@ class DbAccess {
                     $this->conn = $this->connectSQLite();
                     break;
                 default:
+                    Logger::safeError('Unsupported database system specified.', array('DATABASE_SYSTEM' => envOrDefault('DATABASE_SYSTEM')));
                     throw new Exception("Unsupported database system: " . envOrDefault('DATABASE_SYSTEM', 'unknown'));
             }
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            Logger::error("Database connection error: " . $e->getMessage());
+            Logger::safeError("Database connection error: " . $e->getMessage());
             throw new Exception("Failed to connect to the database.");  
         }
        
@@ -43,6 +44,7 @@ class DbAccess {
         $password = envOrDefault('COPILOC_DB_PASSWORD');
 
         if (empty($host) || empty($dbName) || empty($username) || $password === null) {
+            Logger::safeError('Incomplete database credentials for MariaDB.', array('host' => $host, 'dbName' => $dbName, 'username' => $username));
             throw new InvalidArgumentException('Incomplete database credentials for MariaDB.');
         }
 
@@ -57,6 +59,7 @@ class DbAccess {
         $file = $this->envOrDefault('MFPLIST_DB_FILE');
 
         if (empty($file)) {
+            Logger::safeError('SQLite database file path is not set in environment variables.');
             throw new InvalidArgumentException('Incomplete database credentials for SQLite.');
         }
 

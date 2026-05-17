@@ -41,6 +41,7 @@ class Dao {
 			
             return (int) $stmt->fetchColumn();
         }catch(Exception $e) {
+            Logger::safeError('Count query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
     }
@@ -76,6 +77,7 @@ class Dao {
             return ($stmt!=FALSE)? true:false;
   
         }catch(Exception $e) {
+            Logger::safeError('Create query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
         return false;
@@ -141,6 +143,7 @@ class Dao {
             }
 
         }catch(Exception $e) {
+            Logger::safeError('Read query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
     }
@@ -184,6 +187,7 @@ class Dao {
                 }
             }
         }catch(Exception $e) {
+            Logger::safeError('Update query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
         return false;
@@ -226,6 +230,7 @@ class Dao {
                 }
             }
         }catch(Exception $e) {
+            Logger::safeError('Update by UUID query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
         return false;
@@ -250,6 +255,7 @@ class Dao {
                 }
             }
         }catch(Exception $e) {
+            Logger::safeError('Delete query failed.', array('exception' => $e->getMessage()));
             return(false);
         }
         return false;
@@ -264,7 +270,8 @@ class Dao {
 			$stmt = self::$dbHandle->prepare($query);
 			$result = $stmt->execute();
 		}catch(Exception $e){
-		}
+            Logger::safeError('Query execution failed.', array('exception' => $e->getMessage()));
+        }
 		return($result);
 	}
 	
@@ -273,6 +280,7 @@ class Dao {
 		try{
 			$result = $retQuery->fetch(PDO::PDO::FETCH_NUM);	
 		}catch(Exception $e){
+            Logger::safeError('Fetch array failed.', array('exception' => $e->getMessage()));
 		}
 		return($result);
 	}
@@ -282,7 +290,7 @@ class Dao {
 		try{
 			$result = $retQuery->fetch(PDO::FETCH_ASSOC);
 		}catch(Exception $e){
-
+            Logger::safeError('Fetch associative array failed.', array('exception' => $e->getMessage()));
 		}
 		return($result);
 		

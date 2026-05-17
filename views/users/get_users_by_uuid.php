@@ -8,31 +8,39 @@ if($_SERVER['DATABASE_SYSTEM']=='mariadb'){
 }
 
 require_once '../lib/logger.php';
-require_once '../dao/machine.dao.php';
+require_once '../dao/users.dao.php';
 require_once '../lib/dao_tools.php';
 
-/// This file is responsible for handling machine data requests.
-/// It checks user permissions, retrieves machine data from the database, and returns it in JSON format.
-if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 0) {
+/// This file is responsible for handling single user data requests by UUID.
+if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 1) {
     header('Content-Type: application/json; charset=UTF-8');
 
-    if (!DaoTools::checkAppAccess(['MachineDao'])) {
+    if (!DaoTools::checkAppAccess(['UsersDao'])) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden: App does not have access to MachineDao']);
+        echo json_encode(['error' => 'Forbidden: App does not have access to Users data']);
         exit;
     }
 
+    if (!isset($uuid) || trim((string) $uuid) === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing user uuid']);
+        exit;
+    }
+
+    $user = new UsersDao();
+    $user->setUuid((string) $uuid);
+
     try {
         $dao = DAO::getInstance();
-        $results = $dao->read(new MachineDao(), false, true);
+        $results = $dao->read($user, false, true);
     } catch (Exception $e) {
         http_response_code(500);
-        Logger::safeError('get_machines failed.', array('exception' => $e->getMessage()));
+        Logger::safeError('get_users_by_uuid failed.', array('exception' => $e->getMessage()));
         echo json_encode(['error' => 'Internal server error']);
         exit;
     }
 
-    if (!$results) {
+    if ($results === false) {
         http_response_code(500);
         echo json_encode(['error' => 'Database query failed']);
         exit;
@@ -40,11 +48,14 @@ if ($_SERVER['SECURED'] && $_SERVER['USER_LEVEL'] > 0) {
 
     if (count($results) === 0) {
         http_response_code(404);
-        echo json_encode(['error' => 'No machines found']);
+        echo json_encode(['error' => 'User not found']);
         exit;
     }
 
-    echo json_encode($results);
+    $row = $results[0];
+    unset($row['password'], $row['token']);
+
+    echo json_encode($row);
 } else {
     http_response_code(403);
     echo json_encode(['error' => 'Forbidden: Insufficient permissions']);

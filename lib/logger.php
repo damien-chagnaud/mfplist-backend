@@ -108,13 +108,9 @@ class Logger
      */
     public static function info($message, array $context = [])
     {
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'INFO',
             'context' => $context
         ]);
@@ -131,13 +127,9 @@ class Logger
      */
     public static function notice($message, array $context = [])
     {
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'NOTICE',
             'context' => $context
         ]);
@@ -155,13 +147,9 @@ class Logger
     public static function debug($message, array $context = [])
     {
 
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'DEBUG',
             'context' => $context
         ]);
@@ -178,13 +166,9 @@ class Logger
      */
     public static function warning($message, array $context = [])
     {
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'WARNING',
             'context' => $context
         ]);
@@ -201,13 +185,10 @@ class Logger
      */
     public static function error($message, array $context = [])
     {
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
 
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'ERROR',
             'context' => $context
         ]);
@@ -241,13 +222,9 @@ class Logger
      */
     public static function fatal($message, array $context = [])
     {
-        // grab the line and file path where the log method has been executed ( for troubleshooting )
-        $bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 1);
-
         //execute the writeLog method with passing the arguments
         static::writeLog([
             'message' => $message,
-            'bt' => $bt,
             'severity' => 'FATAL',
             'context' => $context
         ]);
@@ -288,21 +265,14 @@ class Logger
 
         $trace = $args['bt'] ?? [];
         $caller = is_array($trace) && count($trace) > 0 ? array_shift($trace) : [];
-        $btLine = $caller['line'] ?? null;
-        $btPath = $caller['file'] ?? null;
-
-        // Convert absolute path to relative path (using UNIX directory seperators)
-        $path = $btPath ? static::absToRelPath($btPath) : null;
 
         // Create log variable = value pairs
         $timeLog = is_null($time) ? "[N/A] " : "[{$time}] ";
-        $pathLog = is_null($path) ? "[N/A] " : "[{$path}] ";
-        $lineLog = is_null($btLine) ? "[N/A] " : "[{$btLine}] ";
         $severityLog = empty($args['severity']) ? "[N/A]" : "[" . static::sanitizeLogString($args['severity']) . "]";
         $messageLog = is_null($args['message'] ?? null) ? "N/A" : static::sanitizeLogString((string) $args['message']);
         $contextLog = empty($safeContext) ? "" : static::sanitizeLogString($context);
 
-        $lineToWrite = "{$timeLog}{$pathLog}{$lineLog}: {$severityLog} - {$messageLog} {$contextLog}" . PHP_EOL;
+        $lineToWrite = "{$timeLog}: {$severityLog} - {$messageLog} {$contextLog}" . PHP_EOL;
 
         // Write time, url, & message to end of file
         if (flock(static::$file, LOCK_EX)) {

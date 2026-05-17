@@ -1,30 +1,28 @@
 <?php
+
+require_once 'logger.php';
+require_once 'client_apps_manager.php';
+
 class Headers {
-    /**
-     * Apply CORS headers based on the allowed origins list from config.
-     * Handles preflight OPTIONS requests automatically.
-     *
-     * @param array $allowedOrigins List of allowed origin strings.
-     */
-    public static function setCorsHeaders(array $allowedOrigins): void {
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+   
+    // Function to get the client UUID from the request headers
+    public static function getClientAppUuid(){ 
+        $appUuid = "";
 
-        if (!empty($origin) && in_array($origin, $allowedOrigins, true)) {
-            header('Access-Control-Allow-Origin: ' . $origin);
-            header('Vary: Origin');
-        } elseif (empty($origin) && in_array('*', $allowedOrigins, true)) {
-            header('Access-Control-Allow-Origin: *');
+        //Ref to X-APP-ID in request headers (case-insensitive)
+        if (isset($_SERVER['HTTP_X_APP_ID'])) {// -> X-APP-ID
+            $appUuid = trim($_SERVER['HTTP_X_APP_ID']);// -> X-APP-ID
+        } elseif (function_exists('apache_request_headers')) {
+            $requestHeaders = apache_request_headers();
+            if (isset($requestHeaders['X-App-Id'])) {//X-App-Id
+                $appUuid = trim($requestHeaders['X-App-Id']);//X-App-Id
+            }
+        } else {
+            Logger::safeError("No app UUID provided in the request headers.");
         }
 
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        header('Access-Control-Allow-Headers: Authorization, Content-Type, Accept');
-        header('Access-Control-Max-Age: 86400');
 
-        // Respond to preflight requests immediately
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            http_response_code(204);
-            exit();
-        }
+        return $appUuid;
     }
 
     // Function to get the Bearer token from the Authorization header
@@ -55,5 +53,3 @@ class Headers {
     }
 
 }
-
-?>

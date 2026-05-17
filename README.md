@@ -58,3 +58,70 @@ Cross-Origin Resource Sharing is configured via the `allowed_origins` array in `
 - Login endpoint has rate limiting: max **8 attempts per 15 minutes** per email+IP combination (returns HTTP `429`).
 - Internal exception details are logged server-side via `lib/logger.php` and never returned to API clients.
 - Database connection errors are caught and abstracted before being surfaced to callers.
+
+## Users API
+
+All users endpoints require a valid authenticated token and admin access level (`USER_LEVEL > 1`).
+
+### List users
+
+- Method: `GET`
+- Route: `/users`
+- Success: `200`
+- Notes: returns all users and excludes sensitive fields (`password`, `token`).
+
+### Get user by UUID
+
+- Method: `GET`
+- Route: `/users/{uuid}`
+- Success: `200`
+- Not found: `404`
+- Notes: returns one user and excludes sensitive fields (`password`, `token`).
+
+### Create user
+
+- Method: `POST`
+- Route: `/users`
+- Success: `201`
+- Required JSON fields: `password` and any other required DB fields (`uuid`, `uid`, `username`, `email`, `token_created_at`)
+- Notes: password is hashed server-side using `password_hash` before insert.
+
+Example payload:
+
+```json
+{
+    "uuid": "d2fd9e55-5c28-4d13-9d4d-2c9ad2326d5c",
+    "uid": "U1001",
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "StrongPassword123!",
+    "token_created_at": "2026-05-17 10:30:00",
+    "level": 2
+}
+```
+
+### Update user
+
+- Method: `PUT`
+- Route: `/users`
+- Success: `200`
+- Required JSON field: `uuid` (target user)
+- Notes: if `password` is present, it is hashed server-side before update.
+
+Example payload:
+
+```json
+{
+    "uuid": "d2fd9e55-5c28-4d13-9d4d-2c9ad2326d5c",
+    "username": "admin-renamed",
+    "email": "admin.renamed@example.com",
+    "level": 2
+}
+```
+
+### Delete user by UUID
+
+- Method: `DELETE`
+- Route: `/users/{uuid}`
+- Success: `200`
+- Not found: `404`

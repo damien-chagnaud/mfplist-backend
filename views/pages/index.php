@@ -1,5 +1,19 @@
 <?php
 $debugMode = getenv('DEBUG_MODE') === 'true';
+
+$errorDB = null;
+//if debug mode is enabled, check database connection and show error if it fails
+if ($debugMode) {
+    require_once '../lib/dbaccess.php';
+    try {
+        $db = new DbAccess();
+        $db->open();
+        $db->close();
+    } catch (Exception $e) {
+        $errorDB = $e->getMessage();
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -238,6 +252,7 @@ $debugMode = getenv('DEBUG_MODE') === 'true';
     <main class="shell">
         <?php if ($debugMode): ?>
             <div class="debug-bar stripe"><span style="background-color: #ff0000; color: #fff; padding: 2px 6px; border-radius: 4px;">Debug Mode active</span></div>
+            <?php if ($errorDB) echo '<div class="debug-bar"><span style="color: #ff0000;">Database Connection Error: ' . htmlspecialchars($errorDB) . '</span></div>'; ?>
         <?php endif; ?>
         
         <section class="hero">

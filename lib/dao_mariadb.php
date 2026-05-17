@@ -71,6 +71,7 @@ class Dao {
 
 			return (int) $stmt->fetchColumn();
 		} catch (Exception $e) {
+			Logger::safeError('count failed.', array('exception' => $e->getMessage()));
 			return false;
 		}
 	}
@@ -294,6 +295,7 @@ class Dao {
 
 	private static function quoteIdentifier($identifier) {
 		if (!is_string($identifier) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $identifier)) {
+			Logger::safeError('Invalid SQL identifier.', array('identifier' => $identifier));
 			throw new InvalidArgumentException('Invalid SQL identifier.');
 		}
 
